@@ -35,9 +35,15 @@ class PromotionController extends Controller
         return response()->json($promotion, 201);
     }
 
-    public function update(PromotionRequest $request, Promotion $promotion)
+    public function update(PromotionRequest $request, $promotionId)
     {
-        $updatedPromotion = $this->promotionService->updatePromotion($promotion, $request->validated());
+        // Valider les données de la requête
+        $validatedData = $request->validated();
+
+        // Mettre à jour la promotion dans Firebase
+        $updatedPromotion = $this->promotionService->updatePromotion($promotionId, $validatedData);
+
+        // Retourner la promotion mise à jour
         return response()->json($updatedPromotion);
     }
 

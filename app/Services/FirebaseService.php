@@ -21,11 +21,27 @@ class FirebaseService
 
     public function createPromotion(array $promotionData)
     {
-        // Créez une nouvelle promotion dans Firebase Realtime Database
-        $newPromotionRef = $this->database->getReference('promotions')->push($promotionData);
-        $promotionData['id'] = $newPromotionRef->getKey();
+        // Récupérer toutes les promotions existantes pour déterminer le dernier ID
+        $promotions = $this->database->getReference('promotions')->getValue();
+
+        if ($promotions) {
+            // Récupérer le plus grand ID actuel
+            $existingIds = array_map('intval', array_keys($promotions)); // Convertir les clés en entiers
+            $newId = max($existingIds) + 1; // Incrémenter pour obtenir un nouvel ID
+        } else {
+            // Si aucune promotion n'existe encore, démarrer avec l'ID 1
+            $newId = 1;
+        }
+
+        // Ajouter l'ID à la nouvelle promotion
+        $promotionData['id'] = $newId;
+
+        // Enregistrer la nouvelle promotion avec l'ID dans Firebase
+        $this->database->getReference('promotions/' . $newId)->set($promotionData);
+
         return $promotionData;
     }
+
 
     public function updatePromotion($promotionId, array $promotionData)
     {

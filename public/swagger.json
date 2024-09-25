@@ -1,0 +1,440 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "API de Gestion des Utilisateurs",
+      "version": "1.0.0",
+      "description": "API pour gérer les utilisateurs, y compris l'enregistrement, la connexion, et les opérations CRUD."
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "paths": {
+      "/auth/login": {
+        "post": {
+          "summary": "Connexion d'un utilisateur",
+          "operationId": "login",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "password": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Connexion réussie",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Identifiants invalides"
+            }
+          }
+        }
+      },
+      "/auth/register": {
+        "post": {
+          "summary": "Enregistrement d'un nouvel utilisateur",
+          "operationId": "register",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nom": {
+                      "type": "string"
+                    },
+                    "prenom": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "role_id": {
+                      "type": "integer"
+                    },
+                    "telephone": {
+                      "type": "string"
+                    },
+                    "photo": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["nom", "prenom", "email", "password", "role_id", "telephone", "photo"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Utilisateur créé avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "nom": {
+                        "type": "string"
+                      },
+                      "prenom": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Données invalides"
+            }
+          }
+        }
+      },
+      "/auth/logout": {
+        "post": {
+          "summary": "Déconnexion d'un utilisateur",
+          "operationId": "logout",
+          "responses": {
+            "204": {
+              "description": "Déconnexion réussie"
+            }
+          }
+        }
+      },
+      "/auth/refresh": {
+        "post": {
+          "summary": "Rafraîchir le token d'authentification",
+          "operationId": "refresh",
+          "responses": {
+            "200": {
+              "description": "Token rafraîchi avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Token invalide"
+            }
+          }
+        }
+      },
+      "/users": {
+        "get": {
+          "summary": "Liste tous les utilisateurs",
+          "operationId": "indexUsers",
+          "parameters": [
+            {
+              "name": "role_id",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "status",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Liste des utilisateurs",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "nom": {
+                          "type": "string"
+                        },
+                        "prenom": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Accès interdit"
+            }
+          }
+        },
+        "post": {
+          "summary": "Créer un nouvel utilisateur",
+          "operationId": "storeUser",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nom": {
+                      "type": "string"
+                    },
+                    "prenom": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "password": {
+                      "type": "string"
+                    },
+                    "role_id": {
+                      "type": "integer"
+                    },
+                    "telephone": {
+                      "type": "string"
+                    },
+                    "photo": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["nom", "prenom", "email", "password", "role_id", "telephone", "photo"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Utilisateur créé avec succès",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "nom": {
+                        "type": "string"
+                      },
+                      "prenom": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Données invalides"
+            }
+          }
+        }
+      },
+      "/users/{user}": {
+        "get": {
+          "summary": "Afficher un utilisateur spécifique",
+          "operationId": "showUser",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Détails de l'utilisateur",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "nom": {
+                        "type": "string"
+                      },
+                      "prenom": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Accès interdit"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        },
+        "patch": {
+          "summary": "Mettre à jour un utilisateur spécifique",
+          "operationId": "updateUser",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "login": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["email", "login"]
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Utilisateur mis à jour avec succès",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "nom": {
+                          "type": "string"
+                        },
+                        "prenom": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "403": {
+                "description": "Accès interdit"
+              },
+              "404": {
+                "description": "Utilisateur non trouvé"
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Supprimer un utilisateur spécifique",
+          "operationId": "deleteUser",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Utilisateur supprimé avec succès"
+            },
+            "403": {
+              "description": "Accès interdit"
+            },
+            "404": {
+              "description": "Utilisateur non trouvé"
+            }
+          }
+        }
+      }
+    }
+  }
+  
