@@ -1,0 +1,396 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "User Management API",
+      "version": "1.0.0",
+      "description": "API for managing users with Firebase integration."
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/api",
+        "description": "Local server"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 1
+            },
+            "email": {
+              "type": "string",
+              "example": "user@example.com"
+            },
+            "nom": {
+              "type": "string",
+              "example": "Ba"
+            },
+            "prenom": {
+              "type": "string",
+              "example": "Nene"
+            },
+            "telephone": {
+              "type": "string",
+              "example": "+123451789"
+            },
+            "fonction": {
+              "type": "string",
+              "example": "Manager"
+            },
+            "photo": {
+              "type": "string",
+              "example": "https://example.com/photo.jpg"
+            },
+            "statut": {
+              "type": "string",
+              "enum": ["ACTIF", "BLOQUER"],
+              "example": "ACTIF"
+            },
+            "role_id": {
+              "type": "integer",
+              "example": 2
+            },
+            "adresse": {
+              "type": "string",
+              "example": "Liberté4"
+            }
+          }
+        },
+        "UserCreateRequest": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "example": "nenechou@gmail.com"
+            },
+            "password": {
+              "type": "string",
+              "example": "password123"
+            },
+            "password_confirmation": {
+              "type": "string",
+              "example": "password123"
+            },
+            "nom": {
+              "type": "string",
+              "example": "Ba"
+            },
+            "prenom": {
+              "type": "string",
+              "example": "Nene"
+            },
+            "telephone": {
+              "type": "string",
+              "example": "+123451789"
+            },
+            "fonction": {
+              "type": "string",
+              "example": "Manager"
+            },
+            "photo": {
+              "type": "string",
+              "format": "binary"
+            },
+            "statut": {
+              "type": "string",
+              "enum": ["ACTIF", "BLOQUER"],
+              "example": "ACTIF"
+            },
+            "role_id": {
+              "type": "integer",
+              "example": 2
+            },
+            "adresse": {
+              "type": "string",
+              "example": "Liberté4"
+            }
+          },
+          "required": [
+            "email",
+            "password",
+            "password_confirmation",
+            "nom",
+            "prenom",
+            "telephone",
+            "fonction",
+            "statut",
+            "role_id",
+            "adresse",
+            "photo"
+          ]
+        }
+      }
+    },
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "paths": {
+      "/auth/login": {
+        "post": {
+          "summary": "Login user",
+          "description": "Authenticates a user and returns a JWT token.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "user@example.com"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "password123"
+                    }
+                  },
+                  "required": ["email", "password"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful login",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "token": {
+                        "type": "string",
+                        "example": "jwt_token_here"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/auth/register": {
+        "post": {
+          "summary": "Register new user",
+          "description": "Registers a new user and returns a JWT token.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreateRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User creer avec succès"
+            },
+            "422": {
+              "description": "Validation error"
+            }
+          }
+        }
+      },
+      "/users": {
+        "get": {
+          "summary": "List all users",
+          "description": "Retrieve a paginated list of all users.",
+          "parameters": [
+            {
+              "name": "role_id",
+              "in": "query",
+              "description": "Filter users by role ID",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "status",
+              "in": "query",
+              "description": "Filter users by status",
+              "schema": {
+                "type": "string",
+                "enum": ["ACTIF", "INACTIF"]
+              }
+            }
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of users",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new user",
+          "description": "Creates a new user with the provided data.",
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCreateRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User created",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation error"
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Get user details",
+          "description": "Retrieve details for a specific user by ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        },
+        "patch": {
+          "summary": "Update user",
+          "description": "Update a user's details like email, login, and password.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "example": "newemail@example.com"
+                    },
+                    "login": {
+                      "type": "string",
+                      "example": "newlogin"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "newpassword123"
+                    },
+                    "password_confirmation": {
+                      "type": "string",
+                      "example": "newpassword123"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User updated",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      }
+    }
+  }
+  
