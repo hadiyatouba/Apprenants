@@ -45,10 +45,11 @@ FROM php:8.3-fpm
 COPY --from=build /var/www /var/www
 
 # Exposer le port
-EXPOSE 9000
+EXPOSE 8999
 
 # Changer les permissions du dossier de stockage et de cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # Lancer PHP-FPM au démarrage du container
 CMD ["php-fpm"]
+
