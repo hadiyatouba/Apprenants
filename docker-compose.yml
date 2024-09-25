@@ -40,9 +40,9 @@ services:
     image: postgres:13
     container_name: postgres
     environment:
-      POSTGRES_DB: penda
-      POSTGRES_USER: anta
-      POSTGRES_PASSWORD: Antagueye04
+      POSTGRES_DB: apprenant
+      POSTGRES_USER: hadiyatou
+      POSTGRES_PASSWORD: Neneba1234@
     ports:
       - "5433:5432"
     networks:
