@@ -28,8 +28,10 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
         $query = User::query();
 
+
         // Filtrer par rôle si spécifié
         if ($request->has('role_id')) {
+            
             $query->ofRole($request->role_id);
         }
 

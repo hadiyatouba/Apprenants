@@ -53,7 +53,6 @@ $app->bind('Illuminate\Http\Request', function () use ($port) {
     return Request::capture()->server->set('SERVER_PORT', $port);
 });
 
-
 $response = $kernel->handle(
     $request = Request::capture()
 )->send();
