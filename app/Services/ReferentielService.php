@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Services;
-use App\Repositories\ReferentielRepository;
 
+use App\Repositories\FirebaseReferentielRepository;
 
 class ReferentielService
 {
     protected $referentielRepository;
 
-    public function __construct(ReferentielRepository $referentielRepository)
+    public function __construct(FirebaseReferentielRepository $referentielRepository)
     {
         $this->referentielRepository = $referentielRepository;
     }

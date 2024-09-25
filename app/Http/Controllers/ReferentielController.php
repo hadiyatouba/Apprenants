@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Http\Controllers;
 
-
-use App\Http\Controllers\Controller;
 use App\Services\ReferentielService;
+use Illuminate\Http\Request;
 use App\Http\Requests\StoreReferentielRequest;
 use App\Http\Requests\UpdateReferentielRequest;
+
 class ReferentielController extends Controller
 {
     protected $referentielService;

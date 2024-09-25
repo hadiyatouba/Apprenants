@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromotionController;
-use App\Http\Controllers\FirebaseReferentielController;
+use App\Http\Controllers\ReferentielController;
 
 
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -46,9 +46,13 @@ Route::middleware('auth:api')->group(function () {
 
 // routes/api.php
 Route::prefix('v1')->group(function () {
-    Route::resource('referentiels', 'ReferentielController');
-    Route::get('archive/referentiels', 'ReferentielController@getArchived');
-});
+       Route::get('referentiels', [ReferentielController::class, 'index']);
+       Route::post('referentiels', [ReferentielController::class, 'store']);
+       Route::get('referentiels/{id}', [ReferentielController::class, 'show']);
+       Route::put('referentiels/{id}', [ReferentielController::class, 'update']);
+       Route::delete('referentiels/{id}', [ReferentielController::class, 'destroy']);
+       Route::get('archive/referentiels', [ReferentielController::class, 'getArchived']);
+   });
 
 
 Route::prefix('v1')->group(function () {

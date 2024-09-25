@@ -95,7 +95,7 @@ class User extends Authenticatable
     // Relation avec le modèle Referentiel
     public function referentiels()
     {
-        return $this->hasMany(Referentiel::class);
+        return $this->hasMany(Referential::class);
     }
 
 

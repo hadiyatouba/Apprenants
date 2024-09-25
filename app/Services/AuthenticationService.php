@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Services\FirebaseService;
+use App\Services\FirebaseServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Services\FirebaseStorageService;
@@ -12,11 +12,12 @@ use App\Models\Role;
 
 class AuthenticationService implements AuthenticationInterface
 {
-    protected $firebaseService;
+    protected $firebaseServices;
     protected $firebaseStorage;
-    public function __construct(FirebaseService $firebaseService, FirebaseStorageService $firebaseStorage)
+
+    public function __construct(FirebaseStorageService $firebaseStorage)
     {
-        $this->firebaseService = $firebaseService;
+        $this->firebaseServices = new FirebaseServices();
         $this->firebaseStorage = $firebaseStorage;
     }
 
@@ -45,29 +46,30 @@ class AuthenticationService implements AuthenticationInterface
             'role_id' => $data['role_id'],
         ]);
 
-        // Créer l'utilisateur dans Firebase
-        $firebaseUid = $this->firebaseService->createUser($data['email'], $data['password'], $user->toArray());
-        $user->firebase_uid = $firebaseUid;
-        $user->save();
+       // Créer l'utilisateur dans Firebase
+    $firebaseUid = $this->firebaseServices->createUser($data['email'], $data['password'], $user->toArray());
+    $user->firebase_uid = $firebaseUid;
+    $user->save();
 
-        $token = $user->createToken('AuthToken');
+    // Créer le token avec Passport
+    $token = $user->createToken('AuthToken')->accessToken;
 
-        return response()->json([
-            'user' => $user->only([
-                'nom',
-                'prenom',
-                'photo',
-                'login',
-                'email',
-                'telephone',
-                'fonction',
-                'statut',
-                'role_id',
-                'id',
-                'firebase_uid'
-            ]),
-            
-        ], 201);
+    return response()->json([
+        'user' => $user->only([
+            'nom',
+            'prenom',
+            'photo',
+            'login',
+            'email',
+            'telephone',
+            'fonction',
+            'statut',
+            'role_id',
+            'id',
+            'firebase_uid'
+        ]),
+        'access_token' => $token,
+    ], 201);
     }
 
     public function login(array $credentials)

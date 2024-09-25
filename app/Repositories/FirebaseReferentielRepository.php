@@ -1,15 +1,14 @@
 <?php
-namespace App\Repositories;
 
-use App\Models\Promotion;
-use App\Models\Referential;
-class ReferentielRepository
+namespace App\Repositories;
+use Kreait\Firebase\Contract\Database;
+class FirebaseReferentielRepository
 {
     protected $firebase;
 
-    public function __construct()
+    public function __construct(Database $firebase)
     {
-        $this->firebase = app('firebase.database');
+        $this->firebase = $firebase;
     }
 
     public function getAllReferentiels()
@@ -46,4 +45,3 @@ class ReferentielRepository
         return $this->firebase->getReference('referentiels')->orderByChild('status')->equalTo('archived')->getValue();
     }
 }
-

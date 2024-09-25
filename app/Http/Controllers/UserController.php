@@ -6,26 +6,26 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Services\FirebaseStorageService;
+use App\Services\FirebaseServices; // Ensure you import this
 
 class UserController extends Controller
 {
-    protected $firebaseService;
+    protected $firebaseServices;
     protected $firebaseStorage;
-    public function __construct(FirebaseService $firebaseService, FirebaseStorageService $firebaseStorageService)
+
+    public function __construct(FirebaseServices $firebaseServices, FirebaseStorageService $firebaseStorageService)
     {
-        $this->firebaseService = $firebaseService;
+        $this->firebaseServices = $firebaseServices; // Now it knows how to resolve this
         $this->firebaseStorage = $firebaseStorageService;
         $this->middleware('auth');
     }
     public function index(Request $request)
     {
         $this->authorize('viewAny', User::class);
-
         $query = User::query();
 
         // Filtrer par rôle si spécifié
@@ -39,7 +39,6 @@ class UserController extends Controller
         }
 
         // Ajouter d'autres logiques de filtrage ici si nécessaire
-
         $users = $query->paginate(15);
         return response()->json($users);
     }
@@ -47,49 +46,46 @@ class UserController extends Controller
     {
         Log::info('Tentative de création d\'utilisateur', ['user' => auth()->user(), 'requested_role' => $request->role_id]);
 
-        // Valider les données de l'utilisateur
+        // Validate the user data
         $validatedData = $this->validateUserData($request);
 
-        // Vérifier si une photo est fournie
+        // Check if a photo is provided
         if ($request->hasFile('photo')) {
             $photoPath = $this->firebaseStorage->uploadFile($request->file('photo'), 'users/' . $validatedData['login'] . '/photo');
-            $validatedData['photo'] = $photoPath; // Enregistrer le lien de la photo dans PostgreSQL
+            $validatedData['photo'] = $photoPath; // Save photo link in PostgreSQL
         } else {
             return response()->json(['error' => 'La photo est requise'], 422);
         }
 
-        // Créer l'utilisateur dans PostgreSQL
+        // Create the user in PostgreSQL
         $validatedData['password'] = Hash::make($validatedData['password']);
         $user = User::create($validatedData);
 
-        // Créer l'utilisateur dans Firebase Authentication et Realtime Database
+        // Create the user in Firebase Authentication and Realtime Database
         $firebaseUserData = [
             'nom' => $validatedData['nom'],
             'prenom' => $validatedData['prenom'],
             'login' => $validatedData['login'],
-            'password' => $validatedData['password'],
-            'email' => $validatedData['email'],
-            'telephone' => $validatedData['telephone'],
-            'fonction' => $validatedData['fonction'],
             'email' => $validatedData['email'],
             'telephone' => $validatedData['telephone'],
             'fonction' => $validatedData['fonction'],
             'statut' => $validatedData['statut'],
             'role_id' => $validatedData['role_id'],
-            'photo' => $validatedData['photo'], // Inclure l'URL de la photo dans Firebase
+            'photo' => $validatedData['photo'], // Include photo URL in Firebase
         ];
 
         try {
-            $firebaseUid = $this->firebaseService->createUser($validatedData['email'], $request->password, $firebaseUserData);
+            $firebaseUid = $this->firebaseServices->createUser($validatedData['email'], $request->password, $firebaseUserData);
             Log::info("Utilisateur créé dans Firebase avec UID: " . $firebaseUid);
         } catch (\Exception $e) {
-            // Si l'insertion échoue dans Firebase, supprimer l'utilisateur de PostgreSQL
+            // If the Firebase insertion fails, delete the user from PostgreSQL
             $user->delete();
             return response()->json(['error' => 'Erreur lors de la création de l\'utilisateur dans Firebase: ' . $e->getMessage()], 500);
         }
 
         return response()->json($user, 201);
     }
+
 
     public function show(User $user)
     {
@@ -100,14 +96,14 @@ class UserController extends Controller
     {
         // Ensure the user is authorized to update this user
         $this->authorize('update', $user);
-    
+
         // Validate only the email, login, and password fields
         $validatedData = $request->validate([
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'login' => 'required|string|max:255|unique:users,login,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed', // Password is optional, but must be confirmed if provided
         ]);
-    
+
         // Hash the password if it is provided
         if (!empty($validatedData['password'])) {
             $validatedData['password'] = Hash::make($validatedData['password']);
@@ -115,14 +111,14 @@ class UserController extends Controller
             // Remove password from the data if it's not being updated
             unset($validatedData['password']);
         }
-    
+
         // Update the user with validated data
         $user->update($validatedData);
-    
+
         // Return the updated user data as a JSON response
         return response()->json($user);
     }
-    
+
     public function destroy(User $user)
     {
         $this->authorize('delete', $user);

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Storage;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 use Exception;
 
 class FirebaseStorageService
@@ -12,14 +13,7 @@ class FirebaseStorageService
 
     public function __construct()
     {
-        try {
-            // Initialise Firebase avec les credentials du fichier JSON
-            $firebase = (new Factory)->withServiceAccount(config('firebase.credentials.file'));
-            $this->storage = $firebase->createStorage();
-        } catch (Exception $e) {
-            // Capture les erreurs liées à la configuration de Firebase
-            throw new Exception("Impossible de se connecter à Firebase Storage: " . $e->getMessage());
-        }
+        $this->storage = Firebase::storage();
     }
 
     public function uploadFile($file, $path)
